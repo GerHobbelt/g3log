@@ -70,7 +70,7 @@ struct LogCapture {
       return _stream;
    }
 #ifdef ENABLE_WIN_WSTRING_SUPPPORT
-   void capturef(const wchar_t *printf_like_message, ...) __attribute__((format(wprintf, 2, 3))); // 2,3 ref:  http://www.codemaestro.com/reviews/18
+   void capturef(G3LOG_FORMAT_STRING const wchar_t *printf_like_message, ...) __attribute__((format(wprintf, 2, 3))); // 2,3 ref:  http://www.codemaestro.com/reviews/18
 
 
 																							  /// prettifying API for this completely open struct
