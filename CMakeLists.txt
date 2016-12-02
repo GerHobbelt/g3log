@@ -113,8 +113,35 @@ endif()
    INCLUDE (${g3log_SOURCE_DIR}/test_unit/Test.cmake)
 
 
+if( NOT WIN32 )
+   SET(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output dir for libraries")
+   SET(CMAKE_INSTALL_RUNTIMEDIR ${CMAKE_INSTALL_LIBDIR})
+   SET(CMAKE_INSTALL_HEADERDIR include CACHE PATH "Output dir for headers")
+else()
+   	if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+		set( ARCHITECTURE "win32" )
+	elseif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+		set( ARCHITECTURE "win64" )
+	endif()
+	
+   SET(CMAKE_INSTALL_LIBDIR "${g3log_SOURCE_DIR}-install/${ARCHITECTURE}$<$<CONFIG:Debug>:_d>/lib>" CACHE PATH "Output dir for libraries")
+   SET(CMAKE_INSTALL_HEADERDIR "${g3log_SOURCE_DIR}-install/${ARCHITECTURE}/include" CACHE PATH "Output dir for headers")
+   
+   install( PROGRAMS $<TARGET_PDB_FILE:g3logger_shared>
+		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		COMPONENT libraries
+	)
+endif()
 
+INSTALL( TARGETS g3logger g3logger_shared
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		COMPONENT libraries)
 
+INSTALL( FILES ${HEADER_FILES}
+		DESTINATION ${CMAKE_INSTALL_HEADERDIR}/g3log
+		COMPONENT headers)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    # ==========================================================================

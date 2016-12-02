@@ -21,7 +21,14 @@
 
 MESSAGE("COMPILE_DEFINITIONS:  ${G3_DEFINITIONS}")
 MESSAGE("End of COMPILE_DEFINITIONS")
-SET(GENERATED_G3_DEFINITIONS src/g3log/generated_definitions.hpp)
+
+SET(GENERATED_G3_DEFINITIONS ${CMAKE_BINARY_DIR}/generated_definitions.hpp)
+include_directories(${CMAKE_BINARY_DIR})
+
+INSTALL( FILES ${GENERATED_G3_DEFINITIONS}
+		DESTINATION ${CMAKE_INSTALL_HEADERDIR}/g3log
+		COMPONENT headers)
+		
 file(REMOVE ${GENERATED_G3_DEFINITIONS} )
 FILE(WRITE ${GENERATED_G3_DEFINITIONS} "// AUTO GENERATED MACRO DEFINITIONS FOR G3LOG\n\n")
 FILE(APPEND ${GENERATED_G3_DEFINITIONS} "${HEADER}\n")
@@ -38,3 +45,4 @@ file(READ ${GENERATED_G3_DEFINITIONS} generated_content)
 MESSAGE("******************** START *************************")
 MESSAGE(${generated_content})
 MESSAGE("******************** END *************************")
+
