@@ -60,12 +60,29 @@ project (g3log)
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
    # 64-bit project
    SET(64_BIT_OS TRUE)
-     MESSAGE("A 64-bit OS detected")
+   MESSAGE(STATUS "A 64-bit OS detected")
  else()
    SET(64_BIT_OS FALSE)
-   MESSAGE("A 32-bit OS detected")
+   MESSAGE(STATUS "A 32-bit OS detected")
 endif()
 
+if( NOT WIN32 )
+   SET(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output dir for libraries")
+   SET(CMAKE_INSTALL_HEADERDIR include CACHE PATH "Output dir for headers")
+else()
+	if( 64_BIT_OS )
+		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-64" )
+	else()
+		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-32" )
+	endif()
+	
+	if ( "${CXXVER}" STREQUAL "MSVC" )
+		set( CXXVER "MSVC-${MSVC_VERSION}" )
+	endif()
+	
+   SET(CMAKE_INSTALL_LIBDIR "${g3log_SOURCE_DIR}-install/${CXXVER}/bin/$<CONFIG>" CACHE PATH "Output dir for libraries")
+   SET(CMAKE_INSTALL_HEADERDIR "${g3log_SOURCE_DIR}-install/${CXXVER}/include" CACHE PATH "Output dir for headers")
+endif()
 
 
    # ============================================================================
@@ -113,27 +130,14 @@ endif()
    INCLUDE (${g3log_SOURCE_DIR}/test_unit/Test.cmake)
 
 
-if( NOT WIN32 )
-   SET(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output dir for libraries")
-   SET(CMAKE_INSTALL_RUNTIMEDIR ${CMAKE_INSTALL_LIBDIR})
-   SET(CMAKE_INSTALL_HEADERDIR include CACHE PATH "Output dir for headers")
-else()
-   	if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-		set( ARCHITECTURE "win32" )
-	elseif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-		set( ARCHITECTURE "win64" )
-	endif()
-	
-   SET(CMAKE_INSTALL_LIBDIR "${g3log_SOURCE_DIR}-install/${ARCHITECTURE}$<$<CONFIG:Debug>:_d>/lib>" CACHE PATH "Output dir for libraries")
-   SET(CMAKE_INSTALL_HEADERDIR "${g3log_SOURCE_DIR}-install/${ARCHITECTURE}/include" CACHE PATH "Output dir for headers")
-   
+if( WIN32 AND G3LOG_SHARED_LIBRARY )
    install( PROGRAMS $<TARGET_PDB_FILE:g3logger_shared>
 		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		COMPONENT libraries
 	)
 endif()
 
-INSTALL( TARGETS g3logger g3logger_shared
+INSTALL( TARGETS g3logger ${G3LOG_SHARED_LIBRARY}
 		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -160,7 +164,7 @@ ENDIF()
 
 
 IF (NOT MSVC)
-   MESSAGE("\n\n
+   MESSAGE(STATUS "\n\n
       *******************************************************************
       Please do 'make clean-cmake' before next cmake generation.
          It is a good idea to purge your build directory of CMake
