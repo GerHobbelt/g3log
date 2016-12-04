@@ -10,10 +10,13 @@
 #include "g3log/crashhandler.hpp"
 #include "g3log/time.hpp"
 #include <mutex>
-#ifdef ENABLE_WIN_WSTRING_SUPPPORT
 #include <locale>
+#if !defined(__GNUC__) || (__GNUC__ >= 5)
 #include <codecvt>
-#endif 
+#else
+// Unfortunately no standard way to convert from wchar_t to Utf-8 narrow string. Sinks that do not use the
+// message() function can implement their own. 
+#endif
 
 namespace {
    std::string splitFileName(const std::string& str) {
@@ -112,19 +115,19 @@ namespace g3 {
       return out;
    }
 
-#ifdef ENABLE_WIN_WSTRING_SUPPPORT
    std::string LogMessage::message() const {
-	   std::string msg;
-	   if (!_wmessage.empty())
-	   {
-		   std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> convert;
-		   msg.append(_message.append(convert.to_bytes(_wmessage)));
-		   if (!_message.empty())
-			   msg.append("\n");
+      std::string msg;
+      if (!_wmessage.empty())
+      {
+#if !defined(__GNUC__) || (__GNUC__ >= 5)
+         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> convert;
+         msg.append(_message.append(convert.to_bytes(_wmessage)));
+#else
+		 msg.append("[unconverted wstring]");
+#endif
 	   }
 	   return msg.append(_message);
    }
-#endif
 
    std::string LogMessage::timestamp(const std::string& time_look) const {
       return g3::localtime_formatted(_timestamp, time_look);
@@ -169,10 +172,8 @@ namespace g3 {
       , _function(other._function)
       , _level(other._level)
       , _expression(other._expression)
-#ifdef ENABLE_WIN_WSTRING_SUPPPORT
-	  , _wmessage(other._wmessage)
-#endif
-      , _message(other._message) {
+      , _message(other._message) 
+	  , _wmessage(other._wmessage) {
    }
 
    LogMessage::LogMessage(LogMessage &&other)
@@ -184,13 +185,9 @@ namespace g3 {
       , _function(std::move(other._function))
       , _level(other._level)
       , _expression(std::move(other._expression))
-#ifdef ENABLE_WIN_WSTRING_SUPPPORT
-	  , _wmessage(std::move(other._wmessage))
-#endif
-      , _message(std::move(other._message)) {
+      , _message(std::move(other._message))
+      , _wmessage(std::move(other._wmessage)) {
    }
-
-
 
    std::string LogMessage::threadID() const {
       std::ostringstream oss;
