@@ -47,14 +47,14 @@ namespace g3 {
 
 #ifdef G3_DYNAMIC_LOGGING
    namespace only_change_at_initialization {
-      void setLogLevel(LEVELS log_level, bool enabled) {
+      void setLogLevel(LEVELS log_level, bool enabled_status) {
          int level = log_level.value;
-         internal::g_log_level_status[level].get().store(enabled, std::memory_order_release);
+         internal::g_log_level_status[level].get().store(enabled_status, std::memory_order_release);
       }
 
-	  void addLogLevel(LEVELS log_level) {
-		  internal::g_default_log_level_status[log_level.value].get().store(true, std::memory_order_release);
-		  internal::g_log_level_status[log_level.value].get().store(true, std::memory_order_release);
+	  void addLogLevel(LEVELS log_level, bool enabled_status) {
+         internal::g_default_log_level_status[log_level.value].get().store(enabled_status, std::memory_order_release);
+		 setLogLevel(log_level, enabled_status);
 	  }
 
       std::string printLevels() {
@@ -65,9 +65,10 @@ namespace g3 {
          return levels;
       }
 
-      void reset() {
-         internal::g_log_level_status.clear();
-		 internal::g_log_level_status = internal::g_default_log_level_status;
+      void reset(bool remove_custom_levels) {
+         if (remove_custom_levels)
+            internal::g_default_log_level_status = { { g3::kDebugValue, true },{ INFO.value, true },{ WARNING.value, true },{ FATAL.value, true } };
+         internal::g_log_level_status = internal::g_default_log_level_status;
       }
    } // only_change_at_initialization
 #endif
