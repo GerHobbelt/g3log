@@ -1,6 +1,7 @@
 @echo off
 
 call :normalise "%~dp0\.."
+set cur_dir=%cd%
 
 set build32=%src_dir%-build\VisualStudio14\win32
 set build64=%src_dir%-build\VisualStudio14\win64
@@ -37,9 +38,11 @@ cd %build64%
 msbuild INSTALL.vcxproj /p:Configuration=Debug
 msbuild INSTALL.vcxproj /p:Configuration=RelWithDebInfo
 
+goto cleanup
+
 :normalise
 SET "src_dir=%~f1"
 goto :eof
 
 :cleanup
-cd %~dp0
+cd %cur_dir%
