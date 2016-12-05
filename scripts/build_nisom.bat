@@ -1,7 +1,9 @@
 echo off
-set cur_parent=%~dp0
-set build_dir=%cur_parent%\g3log-build\nisom
-set install_dir=%cur_parent%\g3log-install\nisom
+call :normalise "%~dp0\.."
+set cur_dir=%cd%
+
+set build_dir=%src_dir%-build\nisom
+set install_dir=%src_dir%-install\nisom
 
 if "%1"=="cmake" GOTO cmake
 if "%1"=="build" GOTO build
@@ -13,6 +15,7 @@ set options=-DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DENABLE_FATAL_SIGNALHANDLING=OFF -D
 @RD /s /q %build_dir% 
 
 rem Re-make the directories
+mkdir %src_dir%-build
 mkdir %build_dir%
 
 call :create_build_dir RelWithDebInfo
@@ -25,13 +28,18 @@ make install
 cd %build_dir%\Debug
 make install
 
-cd %cur_parent%
+goto cleanup
 
-goto :EOF
+:normalise
+SET "src_dir=%~f1"
+goto :eof
 
 :create_build_dir
 echo --
 echo -- Creating %1 build directory in '%build_dir%\%1'
 mkdir %build_dir%\%1
-cmake %cur_parent%\g3log -DCMAKE_INSTALL_PREFIX=%install_dir% -DCMAKE_INSTALL_PREFIX=%install_dir%\%1 %options% -DCMAKE_TOOLCHAIN_FILE="%cur_parent%\CMakeToolchainNISOM.cmake" -DCMAKE_BUILD_TYPE=%1 -B%build_dir%/%1 "-GMinGW Makefiles"
+cmake %src_dir% -DCMAKE_INSTALL_PREFIX=%install_dir% -DCMAKE_INSTALL_PREFIX=%install_dir%\%1 %options% -DCMAKE_TOOLCHAIN_FILE="%src_dir%\scripts\CMakeToolchainNISOM.cmake" -DCMAKE_BUILD_TYPE=%1 -B%build_dir%/%1 "-GMinGW Makefiles"
 exit /b
+
+:cleanup
+cd %cur_dir%
