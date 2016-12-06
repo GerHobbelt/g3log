@@ -95,7 +95,8 @@ namespace g3 {
       if (-1 == rv) {
          return rv;
       }
-      // error mode. just return sec, microsecond
+      // error mode. just return sec, microsecon
+
       ts->tv_sec = now.tv_sec;
       ts->tv_nsec = now.tv_usec * 1000;
       return 0;
