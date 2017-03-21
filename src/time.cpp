@@ -99,7 +99,7 @@ namespace g3 {
       // 
       // Time stamps will later have system clock accuracy but relative times will have the precision
       // of the high resolution clock.   
-      thread_local const auto os =
+      const auto os =
          time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch() -
          time_point_cast<nanoseconds>(high_resolution_clock::now()).time_since_epoch();
       
