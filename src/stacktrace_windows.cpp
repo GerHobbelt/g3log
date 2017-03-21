@@ -15,7 +15,12 @@
 #include "g3log/stacktrace_windows.hpp"
 
 #include <windows.h>
+
+// Supress warning from "typedef enum { ..." in dbghelp.h
+#pragma warning(push)
+#pragma warning(disable: 4091)
 #include <dbghelp.h>
+#pragma warning(pop)
 #include <map>
 #include <memory>
 #include <cassert>
