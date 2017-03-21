@@ -55,7 +55,23 @@ endif()
 # set(CMAKE_BUILD_TYPE Release)
 
 project (g3log)
+set( g3log_version "1.2.0.2" )
 
+set( MSVC_KNOWN_VERSIONS
+	1000=4.x
+	1100=5.0
+	1200=6.0
+	1300=7.0
+	1310=7.1
+	1400=8.0
+	1500=9.0
+	1600=10.0
+	1700=11.0
+	1800=12.0
+	1900=14.0
+	1910=15.0
+)
+		
 # Detect 64 or 32 bit
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
    # 64-bit project
@@ -70,16 +86,22 @@ if( NOT WIN32 )
    SET(CMAKE_INSTALL_LIBDIR lib CACHE PATH "Output dir for libraries")
    SET(CMAKE_INSTALL_HEADERDIR include CACHE PATH "Output dir for headers")
 else()
+	set( MSVC_VER "" )
+	# Only accept the exact version for headers and libraries
+	foreach( version ${MSVC_KNOWN_VERSIONS} )
+		if( MSVC_VERSION AND ${version} MATCHES "^${MSVC_VERSION}=" )
+			string( REGEX REPLACE "^([0-9]+)=([0-9\.]+)$" "-\\2" MSVC_VER ${version} )
+			break()
+		endif()
+	endforeach()
+
 	if( 64_BIT_OS )
-		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-64" )
+		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-64${MSVC_VER}/g3log/g3log-${g3log_version}" )
 	else()
-		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-32" )
+		set( CXXVER "${CMAKE_CXX_COMPILER_ID}-32${MSVC_VER}/g3log/g3log-${g3log_version}" )
 	endif()
 	
-	if ( "${CXXVER}" STREQUAL "MSVC" )
-		set( CXXVER "MSVC-${MSVC_VERSION}" )
-	endif()
-	
+   message( STATUS "Install location: ${g3log_SOURCE_DIR}-install/${CXXVER}")
    SET(CMAKE_INSTALL_LIBDIR "${g3log_SOURCE_DIR}-install/${CXXVER}/lib/$<CONFIG>" CACHE PATH "Output dir for libraries")
    SET(CMAKE_INSTALL_HEADERDIR "${g3log_SOURCE_DIR}-install/${CXXVER}/include" CACHE PATH "Output dir for headers")
 endif()
