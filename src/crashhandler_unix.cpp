@@ -48,7 +48,7 @@ namespace {
    };
 
    std::map<int, std::string> gSignals = kSignals;
-
+   std::map<int, struct sigaction> gSavedSigActions;
 
    bool shouldDoExit() {
       static std::atomic<uint64_t> firstExit{0};
@@ -56,16 +56,41 @@ namespace {
       return (0 == count);
    }
 
-   void restoreSignalHandler(int signal_number) {
-#if !(defined(DISABLE_FATAL_SIGNALHANDLING))
-      struct sigaction action;
-      memset(&action, 0, sizeof (action)); //
-      sigemptyset(&action.sa_mask);
-      action.sa_handler = SIG_DFL; // take default action for the signal
-      sigaction(signal_number, &action, NULL);
-#endif
+   void reportSigactionError(std::string signal_name) {
+      const std::string error = "sigaction - " + signal_name;
+      perror(error.c_str());
    }
 
+   void reportSigactionError(int signal_number) {
+      std::string signal_name;
+      const char *signal_name_sz = strsignal(signal_number);
+
+      // From strsignal(3): On some systems (but not on Linux), NULL may instead
+      // be returned for an invalid signal number.
+      if (nullptr == signal_name_sz) {
+         signal_name = "Unknown signal " + std::to_string(signal_number);
+      } else {
+         signal_name = signal_name_sz;
+      }
+
+      reportSigactionError(signal_name);
+   }
+   
+   void restoreSignalHandler(int signal_number) {
+#if !(defined(DISABLE_FATAL_SIGNALHANDLING))
+      auto old_action_it = gSavedSigActions.find(signal_number);
+      if (old_action_it == gSavedSigActions.end()) {
+         // No saved action, so do nothing.
+         return;
+      }
+      
+      if (sigaction(signal_number, &(old_action_it->second), nullptr) < 0) {
+         reportSigactionError(signal_number);
+      }
+      
+      gSavedSigActions.erase(old_action_it);
+#endif
+   }
 
    // Dump of stack,. then exit through g3log background worker
    // ALL thanks to this thread at StackOverflow. Pretty much borrowed from:
@@ -100,7 +125,7 @@ namespace {
    //  on *NIX systems
    void installSignalHandler() {
 #if !(defined(DISABLE_FATAL_SIGNALHANDLING))
-      struct sigaction action;
+      struct sigaction action, old_action;
       memset(&action, 0, sizeof (action));
       sigemptyset(&action.sa_mask);
       action.sa_sigaction = &signalHandler; // callback to crashHandler for fatal signals
@@ -109,9 +134,10 @@ namespace {
 
       // do it verbose style - install all signal actions
       for (const auto& sig_pair : gSignals) {
-         if (sigaction(sig_pair.first, &action, nullptr) < 0) {
-            const std::string error = "sigaction - " + sig_pair.second;
-            perror(error.c_str());
+         if (sigaction(sig_pair.first, &action, &old_action) < 0) {
+            reportSigactionError(sig_pair.second);
+         } else {
+            gSavedSigActions[sig_pair.first] = old_action;
          }
       }
 #endif
