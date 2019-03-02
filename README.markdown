@@ -235,6 +235,12 @@ make package
 sudo dpkg -i g3log-<version>-Linux.deb
 ```
 
+## Building on Linux crosscompiling for ARM
+```
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:PATH="..\toolchain.cmake" -DCMAKE_CXX_STANDARD=14 ..
+make
+```
+
 ## Building on MinGW
 ```
 cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
