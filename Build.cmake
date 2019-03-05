@@ -75,7 +75,7 @@
  ENDIF()
 
 # require here some proxy for c++14 standard to avoid problems TARGET_PROPERTY CXX_STANDARD
-TARGET_COMPILE_FEATURES(${G3LOG_LIBRARY} PUBLIC cxx_variable_templates)
+#TARGET_COMPILE_FEATURES(${G3LOG_LIBRARY} PUBLIC cxx_variable_templates)
 
  
 TARGET_INCLUDE_DIRECTORIES(${G3LOG_LIBRARY} PUBLIC ${LOG_SRC} "${CMAKE_CURRENT_BINARY_DIR}/include")
