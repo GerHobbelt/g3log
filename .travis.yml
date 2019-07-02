@@ -24,11 +24,12 @@ script:
      - cd build
      - cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_CXX_STANDARD=14 -DCMAKE_BUILD_TYPE=Release .. 
      - make package
+     - mv g3log-*.deb g3log-Linux.deb
 
 deploy:
   provider: releases
   api_key:
     secure: kTf8gUTZb4Nw3Pd30s+l/UIRz5v2xuxJKhuOtl9rVxR4SzNU/fHRjpM8XBMl2fv5CqUs/TXLqGoAhPaoWCajlpNS4wR8SUCgBaakXyNmEhrAGCw9HhUjuoVTauIqM3hxaouoQKuONctKgK2BBXQnHefV1BBsnhEPjgd1NlgJ4vzmqZDjqAO/k2vQoZ6BZE5TSLq5vLcsJ6EsZ6hcK4JzPqU/I6iXbuJ3/kuzCEiNKvlafUY99IyFsqkawW90hNhG21fCVqfY45t4IJ1457gzBqEaLjsNR1TPerXaSCNp3Y+Y77++Dupvu42m08/Z2eJJOsiHEwPyziL4kOgGhNLR0spE1R0hf1b+q1qoS9VQ018VcUiqwN6Ztr0LRyrA/f3H0cwgvUrbmYr3C0oYg3ZlMEhHiUd68940XOXkSWPnncs0ltJFJMsZeHOBZIVo/c+UzNLX0X+eTZuaVyfr0POl7nqHGqk0RFIUfMcjLKAQIo5wfeCH8vSalYYM1AAUFfpY6wGb9e9F7mFgYJUk1ETRy+8WGj/1SkLXEggViRqlpQ+ItKhB0l61gR4t4rG7sYpMgxW7QeKvOGzmxzfuJtw0vN3U6WH57ifLwmWg5MJFmqERcgH0c9mVDJAHFIgVRYpSlvcTqPiexNwOUbZ2i4lsx2rL+aJxdUeRawnkBIITIAA=
-  file: build/g3log-1.3.2-Linux.deb
+  file: build/g3log-Linux.deb
   on:
     repo: CosmicResearch/g3log
