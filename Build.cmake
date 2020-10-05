@@ -101,17 +101,8 @@ IF(NOT(MSVC OR MINGW))
 	INCLUDE(CheckLibraryExists)
 	INCLUDE(CheckCXXSymbolExists)
 
-	#if demangle is in c++ runtime lib
-	CHECK_CXX_SYMBOL_EXISTS(abi::__cxa_demangle "cxxabi.h" DEMANGLE_EXISTS)
-	IF( NOT (DEMANGLE_EXISTS))
-	   #try to link against c++abi to get demangle
-	   CHECK_LIBRARY_EXISTS(c++abi abi::__cxa_demangle "cxxabi.h" NEED_C++ABI)
-	   IF( NEED_C++ABI)
-	      TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} c++abi)
-	   ELSE()
-	   message( FATAL_ERROR "Could not find function abi::__cxa_demangle")
-	   ENDIF()
-	endif()
+	# works for llvm
+	TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} c++abi)
 ENDIF()
 # add Warnings
 target_compile_options(${G3LOG_LIBRARY} PRIVATE

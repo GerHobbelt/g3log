@@ -46,6 +46,9 @@ namespace g3 {
       std::string level() const {
          return _level.text;
       }
+      std::string letter() const {
+         return "[" + _level.text.substr(0, 1) + "] ";
+      }
 
       /// use a different format string to get a different look on the time.
       //  default look is Y/M/D H:M:S

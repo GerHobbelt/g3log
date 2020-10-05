@@ -111,8 +111,11 @@ namespace g3 {
     * This function switches the function pointer so that only
     * 'unitTest' mock-fatal calls are made.
     * */
-   void setFatalExitHandler(std::function<void(FatalMessagePtr) > fatal_call) {
-      g_fatal_to_g3logworker_function_ptr = fatal_call;
+   std::function<void(FatalMessagePtr)> setFatalExitHandler(
+       std::function<void(FatalMessagePtr)> fatal_call) {
+     auto prev_ptr = g_fatal_to_g3logworker_function_ptr;
+     g_fatal_to_g3logworker_function_ptr = fatal_call;
+     return prev_ptr;
    }
 
 

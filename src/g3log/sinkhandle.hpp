@@ -38,15 +38,15 @@ namespace g3 {
       // call result.
       template<typename AsyncCall, typename... Args>
       auto call(AsyncCall func , Args &&... args) -> std::future<typename std::result_of<decltype(func)(T, Args...)>::type> {
-         try {
+         // try {
             std::shared_ptr<internal::Sink<T>> sink(_sink);
             return sink->async(func, std::forward<Args>(args)...);
-         } catch (const std::bad_weak_ptr &e) {
+         /* } catch (const std::bad_weak_ptr &e) {
             typedef typename std::result_of<decltype(func)(T, Args...)>::type PromiseType;
             std::promise<PromiseType> promise;
             promise.set_exception(std::make_exception_ptr(e));
             return std::move(promise.get_future());
-         }
+         } */
       }
    };
 }

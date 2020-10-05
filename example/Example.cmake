@@ -27,7 +27,7 @@
   ENDIF()
 
    set(DIR_EXAMPLE ${g3log_SOURCE_DIR}/example)
-   option (ADD_FATAL_EXAMPLE  "Fatal (fatal-crashes/contract) examples " ON)
+   option (ADD_FATAL_EXAMPLE  "Fatal (fatal-crashes/contract) examples " OFF)
 
 
    IF (ADD_FATAL_EXAMPLE)

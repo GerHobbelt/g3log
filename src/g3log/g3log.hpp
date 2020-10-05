@@ -83,7 +83,7 @@ namespace g3 {
     * use "setFatalExithandler".  Please see g3log.cpp and crashhandler_windows.cpp or crashhandler_unix for
     * example of restoring signal and exception handlers, flushing the log and shutting down.
     */
-   void setFatalExitHandler(std::function<void(FatalMessagePtr)> fatal_call);
+   std::function<void(FatalMessagePtr)> setFatalExitHandler(std::function<void(FatalMessagePtr)> fatal_call);
 
 
 #ifdef G3_DYNAMIC_MAX_MESSAGE_SIZE
